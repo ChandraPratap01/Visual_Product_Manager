@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-
 interface UploadBoxProps {
   onSearch: (imageBase64: string | null, imageUrl: string | null) => void;
 }
