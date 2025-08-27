@@ -25,7 +25,7 @@ export default function UploadBox({ onSearch }: UploadBoxProps) {
   e.preventDefault();
   if (url.trim()) {
     setPreview(url.trim());
-    onSearch(null, url.trim()); // send url directly
+    onSearch(null, url.trim()); 
   }
 };
 

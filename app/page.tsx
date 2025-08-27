@@ -16,7 +16,7 @@ const handleSearch = async (file: File | null, imageUrl: string | null) => {
   if (file) formData.append("image", file);
   if (imageUrl) formData.append("imageUrl", imageUrl);
 
-  const res = await fetch("/api/search", {
+  const res = await fetch("app/api/search", {
     method: "POST",
     body: formData,
   });
