@@ -1,9 +1,7 @@
+
 import { NextResponse } from "next/server";
 import { pipeline, RawImage } from "@xenova/transformers";
 import products from "../../../data/products.json";
-import fs from "fs";
-import path from "path";
-import os from "os";
 
 let extractor: any = null;
 
@@ -22,18 +20,12 @@ export async function POST(req: Request) {
     const { imageBase64, imageUrl } = await req.json();
     const extractor = await getExtractor();
 
-    let rawImage: any;
+    let rawImage: RawImage | null = null;
 
     if (imageBase64) {
+      
       const buffer = Buffer.from(imageBase64, "base64");
-      const tmpPath = path.join(os.tmpdir(), `upload-${Date.now()}.jpg`);
-      fs.writeFileSync(tmpPath, buffer);
-
-      try {
-        rawImage = await RawImage.read(tmpPath);
-      } finally {
-        fs.unlinkSync(tmpPath); 
-      }
+      rawImage = await RawImage.read(buffer as any);
     } else if (imageUrl) {
       rawImage = await RawImage.read(imageUrl);
     } else {
@@ -45,7 +37,6 @@ export async function POST(req: Request) {
       normalize: true,
     });
 
-  
     const results = products
       .map((p: any) => ({
         ...p,
@@ -56,13 +47,16 @@ export async function POST(req: Request) {
       .slice(0, 6);
 
     return NextResponse.json(results);
-  } catch (err: any) {
+  } catch (err: unknown) {
+    console.error("API error:", err);
     return NextResponse.json(
-      { error: err?.message || "Unknown server error" },
+      { error: err instanceof Error ? err.message : "Unknown server error" },
       { status: 500 }
     );
   }
 }
+
+
 export const config = {
   api: {
     bodyParser: {
