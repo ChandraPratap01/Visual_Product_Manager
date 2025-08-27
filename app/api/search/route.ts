@@ -63,7 +63,13 @@ export async function POST(req: Request) {
     );
   }
 }
-
+export const config = {
+  api: {
+    bodyParser: {
+      sizeLimit: "20mb",
+    },
+  },
+};
 
 function cosineSimilarity(a: number[], b: number[]) {
   let dot = 0,
