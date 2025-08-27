@@ -13,7 +13,7 @@ async function main() {
   // Compute embeddings
   for (const product of products) {
     const imagePath = path.join(process.cwd(), "public", product.image);
-    console.log(`🔄 Embedding: ${product.name}`);
+   
 
     // Load the image as RawImage
     const rawImage = await RawImage.read(imagePath);
@@ -29,7 +29,7 @@ async function main() {
 
   // Save updated JSON
   fs.writeFileSync(productsPath, JSON.stringify(products, null, 2));
-  console.log(" Embeddings saved to data/products.json");
+
 }
 
 main();

@@ -17,7 +17,6 @@ async function main() {
   });
 
   fs.writeFileSync("data/products.json", JSON.stringify(products, null, 2));
-  console.log(`✅ Generated ${products.length} products in data/products.json`);
 }
 
 main();
