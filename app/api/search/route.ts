@@ -1,7 +1,9 @@
-
 import { NextResponse } from "next/server";
 import { pipeline, RawImage } from "@xenova/transformers";
 import products from "../../../data/products.json";
+import fs from "fs";
+import path from "path";
+import os from "os";
 
 let extractor: any = null;
 
@@ -17,53 +19,46 @@ async function getExtractor() {
 
 export async function POST(req: Request) {
   try {
-    const { imageBase64, imageUrl } = await req.json();
+    const formData = await req.formData();
+    const file = formData.get("image") as File | null;
+    const imageUrl = formData.get("imageUrl") as string | null;
+
     const extractor = await getExtractor();
+    let rawImage: any;
 
-    let rawImage: RawImage | null = null;
+    if (file) {
+      // Save file temporarily
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const tmpPath = path.join(os.tmpdir(), `upload-${Date.now()}.jpg`);
+      fs.writeFileSync(tmpPath, buffer);
 
-    if (imageBase64) {
-      
-      const buffer = Buffer.from(imageBase64, "base64");
-      rawImage = await RawImage.read(buffer as any);
+      try {
+        rawImage = await RawImage.read(tmpPath);
+      } finally {
+        fs.unlinkSync(tmpPath);
+      }
     } else if (imageUrl) {
       rawImage = await RawImage.read(imageUrl);
     } else {
       return NextResponse.json({ error: "No image provided" }, { status: 400 });
     }
 
-    const embedding = await extractor(rawImage, {
-      pooling: "mean",
-      normalize: true,
-    });
+    const embedding = await extractor(rawImage, { pooling: "mean", normalize: true });
 
     const results = products
-      .map((p: any) => ({
-        ...p,
-        score: cosineSimilarity(embedding.data, p.embedding),
-      }))
+      .map((p: any) => ({ ...p, score: cosineSimilarity(embedding.data, p.embedding) }))
       .filter((p: any) => p.score >= 0.7)
       .sort((a: any, b: any) => b.score - a.score)
       .slice(0, 6);
 
     return NextResponse.json(results);
-  } catch (err: unknown) {
-    console.error("API error:", err);
+  } catch (err: any) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Unknown server error" },
+      { error: err?.message || "Unknown server error" },
       { status: 500 }
     );
   }
 }
-
-
-export const config = {
-  api: {
-    bodyParser: {
-      sizeLimit: "20mb",
-    },
-  },
-};
 
 function cosineSimilarity(a: number[], b: number[]) {
   let dot = 0,

@@ -8,26 +8,30 @@ export default function Home() {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const handleSearch = async (imageBase64: string | null, imageUrl: string | null) => {
-    setLoading(true);
-    setResults([]);
+const handleSearch = async (file: File | null, imageUrl: string | null) => {
+  setLoading(true);
+  setResults([]);
 
-    const res = await fetch("/api/search", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ imageBase64, imageUrl }),
-    });
+  const formData = new FormData();
+  if (file) formData.append("image", file);
+  if (imageUrl) formData.append("imageUrl", imageUrl);
 
-    if (!res.ok) {
-  
-      setLoading(false);
-      return;
-    }
+  const res = await fetch("/api/search", {
+    method: "POST",
+    body: formData,
+  });
 
-    const data = await res.json();
-    setResults(data);
+  if (!res.ok) {
     setLoading(false);
-  };
+    return;
+  }
+
+  const data = await res.json();
+  setResults(data);
+  setLoading(false);
+};
+
+
 
   return (
     <main className="min-h-screen p-6 bg-gray-300">

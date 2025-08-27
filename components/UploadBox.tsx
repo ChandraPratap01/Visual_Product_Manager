@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 interface UploadBoxProps {
-  onSearch: (imageBase64: string | null, imageUrl: string | null) => void;
+  onSearch: (file: File | null, imageUrl: string | null) => void;
 }
+
 
 export default function UploadBox({ onSearch }: UploadBoxProps) {
   const [url, setUrl] = useState("");
@@ -11,27 +12,23 @@ export default function UploadBox({ onSearch }: UploadBoxProps) {
 
 
   const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      const base64 = result.split(",")[1]; 
-      setPreview(result); 
-      onSearch(base64, null);
-    };
-    reader.readAsDataURL(file);
-  };
+  setPreview(URL.createObjectURL(file)); // no FileReader, no base64
+  onSearch(file, null); // send file directly
+};
+
 
   
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (url.trim()) {
-      setPreview(url.trim());
-      onSearch(null, url.trim());
-    }
-  };
+  e.preventDefault();
+  if (url.trim()) {
+    setPreview(url.trim());
+    onSearch(null, url.trim()); // send url directly
+  }
+};
+
 
   return (
     <div className="flex flex-col items-center gap-4 p-4 border rounded-2xl bg-white shadow-md">
