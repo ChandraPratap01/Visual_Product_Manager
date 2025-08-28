@@ -19,7 +19,46 @@ async function getExtractor() {
 }
 
 export async function POST(req: Request) {
-  return NextResponse.json({ message: "API works!" });
+  try {
+    const formData = await req.formData();
+    const file = formData.get("image") as File | null;
+    const imageUrl = formData.get("imageUrl") as string | null;
+
+    const extractor = await getExtractor();
+    let rawImage: any;
+
+    if (file) {
+      // Save file temporarily
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const tmpPath = path.join(os.tmpdir(), `upload-${Date.now()}.jpg`);
+      fs.writeFileSync(tmpPath, buffer);
+
+      try {
+        rawImage = await RawImage.read(tmpPath);
+      } finally {
+        fs.unlinkSync(tmpPath);
+      }
+    } else if (imageUrl) {
+      rawImage = await RawImage.read(imageUrl);
+    } else {
+      return NextResponse.json({ error: "No image provided" }, { status: 400 });
+    }
+
+    const embedding = await extractor(rawImage, { pooling: "mean", normalize: true });
+
+    const results = products
+      .map((p: any) => ({ ...p, score: cosineSimilarity(embedding.data, p.embedding) }))
+      .filter((p: any) => p.score >= 0.7)
+      .sort((a: any, b: any) => b.score - a.score)
+      .slice(0, 6);
+
+    return NextResponse.json(results);
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: err?.message || "Unknown server error" },
+      { status: 500 }
+    );
+  }
 }
 
 
