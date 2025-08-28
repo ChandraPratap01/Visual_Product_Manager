@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+process.env.TRANSFORMERS_BACKEND = "wasm";
 import { pipeline, RawImage } from "@xenova/transformers";
 import products from "../../../data/products.json";
 import fs from "fs";
