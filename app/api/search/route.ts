@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     let rawImage: any;
 
     if (file) {
-      // Save file temporarily
+     
       const buffer = Buffer.from(await file.arrayBuffer());
       const tmpPath = path.join(os.tmpdir(), `upload-${Date.now()}.jpg`);
       fs.writeFileSync(tmpPath, buffer);

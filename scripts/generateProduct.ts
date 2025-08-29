@@ -6,13 +6,13 @@ async function main() {
   const files = fs.readdirSync(productsDir);
 
   const products = files.map((file, index) => {
-    const name = file.replace(/\.[^/.]+$/, ""); // remove extension
+    const name = file.replace(/\.[^/.]+$/, ""); 
     return {
       id: index + 1,
-      name: name.replace(/-/g, " "), // turn "red-shoes" into "red shoes"
-      category: "General", // you can refine later
+      name: name.replace(/-/g, " "), 
+      category: "General", 
       image: `/products/${file}`,
-      embedding: [] // will be filled later
+      embedding: [] 
     };
   });
 

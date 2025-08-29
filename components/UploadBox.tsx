@@ -15,8 +15,8 @@ export default function UploadBox({ onSearch }: UploadBoxProps) {
   const file = e.target.files?.[0];
   if (!file) return;
 
-  setPreview(URL.createObjectURL(file)); // no FileReader, no base64
-  onSearch(file, null); // send file directly
+  setPreview(URL.createObjectURL(file)); 
+  onSearch(file, null); 
 };
 
 
