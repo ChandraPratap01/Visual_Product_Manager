@@ -43,6 +43,5 @@ You only need to run `scripts/embed.ts` if you **add new products**.
 # (Only if dataset changes)
 npx ts-node scripts/embed.ts
 
-## 🎥 Demo
+```
 
-<video src="https://github.com/chandrapratap01/REPO/raw/main/demo/demo.mp4" controls></video>
