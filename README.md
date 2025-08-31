@@ -37,11 +37,15 @@ npm run dev
 
 
 The `products.json` file already contains **precomputed embeddings** for all products.  
-You only need to run `scripts/embed.ts` if you **add new products**.  
+You only need to run `npm run dev` if you **add new products**.  
 
 ```bash
+# (Add Photos in public/products)
+npm install --save-dev tsx
+npx tsx script/generateProduct.ts
 # (Only if dataset changes)
-npx ts-node scripts/embed.ts
+npx ts-node --compiler-options '{"module":"commonjs"}' scripts/embed.ts
+
 
 ```
 
